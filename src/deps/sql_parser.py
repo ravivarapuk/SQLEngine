@@ -276,7 +276,7 @@ def _parse_porj_cols(raw_cols, tables, alias2tb):
             return proj_cols
 
 
-def parse_conditions(raw_condition, tables, alias2tb):
+def _parse_conditions(raw_condition, tables, alias2tb):
     # parse conditions
 
     conditions = []
@@ -323,3 +323,33 @@ def _parse_query(q):
 
     # break query
     raw_tables, raw_cols, raw_condition = _break_query(q)
+    # get tables
+    tables, alias2tb = _parse_tables(raw_tables)
+    # get cols to be projected
+    proj_cols = _parse_porj_cols(raw_cols, tables, alias2tb)
+    # get conditions
+    conditions, cond_op = _parse_conditions(raw_condition, tables, alias2tb)
+
+    #decide all the needed columns for each table
+    inter_cols = {t: set() for t in tables}
+    for tn, cn, _ in proj_cols:
+        inter_cols[tn].add(cn)
+    for cond in conditions:
+        for tn, cn in cond[1:]:
+            if tn == LITERAL:
+                continue
+            inter_cols[tn].add(cn)
+
+    for t in tables:
+        inter_cols[t] = list(inter_cols[t])
+
+    return {
+        'tables': tables,
+        'alias2tb': alias2tb,
+        'proj_cols': proj_cols,
+        'conditions': conditions,
+        'cond_op': cond_op,
+        'inter_cols': inter_cols
+    }
+
+
