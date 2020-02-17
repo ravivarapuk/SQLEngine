@@ -275,3 +275,44 @@ def _parse_porj_cols(raw_cols, tables, alias2tb):
             # ----------------------------------------------
             return proj_cols
 
+
+def parse_conditions(raw_condition, tables, alias2tb):
+    # parse conditions
+    # ----------------------------------------------
+    conditions = []
+    cond_op = None
+    if raw_condition:
+        raw_condition = " ".join(raw_condition)
+
+        if " or " in raw_condition:
+            cond_op = " or "
+        elif " and " in raw_condition:
+            cond_op = " and "
+
+        if cond_op:
+            raw_condition = raw_condition.split(cond_op)
+        else:
+            raw_condition = [raw_condition]
+
+        for cond in raw_condition:
+            relate_op, left, right = _get_relate_op(cond)
+            parsed_cond = [relate_op]
+            for idx, rc in enumerate([left, right]):
+                if _isint(rc):
+                    parsed_cond.append((LITERAL, rc))
+                    continue
+
+                if "." in rc:
+                    tname, cname = rc.split(".")
+                else:
+                    cname = rc
+                    tname = [t for t in tables if rc in schema[alias2tb[t]]]
+                    _error_if(len(tname) > 1, "not unique field : '{}'".format(rc))
+                    _error_if(len(tname) == 0, "unknown field : '{}'".format(rc))
+                    tname = tname[0]
+                _error_if((tname not in alias2tb.keys()) or (cname not in schema[alias2tb[tname]]),
+                    "unknown field : '{}'".format(rc))
+                parsed_cond.append((tname, cname))
+            conditions.append(parsed_cond)
+    # ----------------------------------------------
+    return conditions, cond_op
