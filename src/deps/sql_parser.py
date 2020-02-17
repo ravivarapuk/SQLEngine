@@ -204,6 +204,7 @@ def _break_query(q):
         # ----------------------------------------------
         return raw_tables, raw_cols, raw_condition
 
+
 def _parse_tables(raw_tables):
     # all joined tables
 
@@ -222,4 +223,55 @@ def _parse_tables(raw_tables):
         _error_if(tb_alias in alias2tb.keys(), "no unique table/alias '{}'".format(tb_name))
 
         tables.append(tb_alias)
-        
+        alias2tb[tb_alias] = tb_name
+
+    return tables, alias2tb
+
+
+def _parse_porj_cols(raw_cols, tables, alias2tb):
+    # projection columns: cols to output
+
+    raw_cols = "".join(raw_cols).split(",")
+    proj_cols = []
+    for rc in raw_cols:
+        # match for aggregate function
+        reg_match = re.match("(.+)\((.+)\)", rc)
+        if reg_match:
+            aggr, rc = reg_match.groups()
+        else:
+            aggr = None
+
+        # either one of these two : col or table.col
+        _error_if("." in rc and len(rc.split(".")) != 2, "invalid column name '{}'".format(rc))
+
+        # get table name and column name
+        tname = None
+        if "." in rc:
+            tname, cname = rc.split(".")
+            _error_if(tname not in alias2tb.keys(), "unknown field : '{}'".format(rc))
+        else:
+            cname = rc
+            if cname != "*":
+                tname = [t for t in tables if cname in schema[alias2tb[t]]]
+                _error_if(len(tname) > 1, "not unique field : '{}'".format(rc))
+                _error_if(len(tname) == 0, "unknown field : '{}'".format(rc))
+                tname = tname[0]
+                # add all columns if *
+                if cname == "*":
+                    _error_if(aggr != None, "can't use aggregate '{}'".format(aggr))
+                    if tname != None:
+                        proj_cols.extend([(tname, c, aggr) for c in schema[alias2tb[tname]]])
+                    else:
+                        for t in tables:
+                            proj_cols.extend([(t, c, aggr) for c in schema[alias2tb[t]]])
+                else:
+                    _error_if(cname not in schema[alias2tb[tname]], "unknown field : '{}'".format(rc))
+                    proj_cols.append((tname, cname, aggr))
+
+            # either all columns without aggregate or all columns with aggregate
+            s = [a for t, c, a in proj_cols]
+            _error_if(all(s) ^ any(s), "aggregated and non-aggregated columns are not allowed simultaneously")
+            _error_if(any([(a == "distinct") for a in s]) and len(s) != 1, "distinct can only be used alone")
+            # ----------------------------------------------
+            return proj_cols
+
