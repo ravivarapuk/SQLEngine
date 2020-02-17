@@ -272,13 +272,13 @@ def _parse_porj_cols(raw_cols, tables, alias2tb):
             s = [a for t, c, a in proj_cols]
             _error_if(all(s) ^ any(s), "aggregated and non-aggregated columns are not allowed simultaneously")
             _error_if(any([(a == "distinct") for a in s]) and len(s) != 1, "distinct can only be used alone")
-            # ----------------------------------------------
+
             return proj_cols
 
 
 def parse_conditions(raw_condition, tables, alias2tb):
     # parse conditions
-    # ----------------------------------------------
+
     conditions = []
     cond_op = None
     if raw_condition:
@@ -314,5 +314,12 @@ def parse_conditions(raw_condition, tables, alias2tb):
                     "unknown field : '{}'".format(rc))
                 parsed_cond.append((tname, cname))
             conditions.append(parsed_cond)
-    # ----------------------------------------------
+
     return conditions, cond_op
+
+
+def _parse_query(q):
+    # parse the query
+
+    # break query
+    raw_tables, raw_cols, raw_condition = _break_query(q)
