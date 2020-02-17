@@ -6,8 +6,8 @@ import re
 import pprint
 import itertools
 
-DB_DIR = ""
-META_FILE = ""
+DB_DIR = "../files/"
+META_FILE = "../files/metadata.txt"
 AGGREGATE = ["max", "min", "sum", "avg", "count", "distinct"]
 OPS = ["<=", ">=", "=", "<>", "<", ">"]
 LITERAL = "<literal>"
@@ -203,4 +203,23 @@ def _break_query(q):
         _error_if(where_idx != None and len(raw_condition) == 0, "no conditions after 'where'")
         # ----------------------------------------------
         return raw_tables, raw_cols, raw_condition
-    
+
+def _parse_tables(raw_tables):
+    # all joined tables
+
+    raw_tables = " ".join(raw_tables).split(",")
+    tables = []
+    alias2tb = {}
+    for rt in raw_tables:
+        t = rt.split()
+        _error_if(not(len(t) == 1 or (len(t) == 3 and t[1] == "as")), "invalid table specification '{}'".format(rt))
+        if len(t) == 1:
+            tb_name, tb_alias = t[0], t[0]
+        else:
+            tb_name, _, tb_alias = t
+
+        _error_if(tb_name not in schema.keys(), "no table name '{}'".format(tb_name))
+        _error_if(tb_alias in alias2tb.keys(), "no unique table/alias '{}'".format(tb_name))
+
+        tables.append(tb_alias)
+        
