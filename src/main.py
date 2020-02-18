@@ -1,6 +1,7 @@
 import sys
 from src.deps import sql_parser as sp
 
+
 # directories set-up
 DB_DIR = "../req_files/"
 META_FILE = "../req_files/metadata.txt"
@@ -15,7 +16,7 @@ def main():
     q = sys.argv[1]
 
     qdict = sp._parse_query(q)
-    out_header, out_table = sp._get_op_tbl(qdict)
+    out_header, out_table = sp._get_op_tbl(qdict, DB_DIR)
 
     sp._print_table(out_header, out_table)
 

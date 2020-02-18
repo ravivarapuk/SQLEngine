@@ -76,7 +76,7 @@ def _load_table(fname):
     return np.genfromtxt(fname, dtype=int, delimiter=',')
 
 
-def _get_op_tbl(tdict):
+def _get_op_tbl(tdict, db_dir):
     pprint.pprint(tdict)
     alias2tb = tdict['alias2tb']
     inter_cols = tdict['inter_cols']
@@ -91,9 +91,9 @@ def _get_op_tbl(tdict):
     cnt = 0
     all_tables = []
     for t in tables:
-        lt = _load_table(os.path.join(DB_DIR, "{}.csv".format(alias2tb[t])))
+        lt = _load_table(os.path.join(db_dir, "{}.csv".format(alias2tb[t])))
 
-        idxs = [schema[alias2tb[t]].index(cnmae) for cname in inter_cols[t]]
+        idxs = [schema[alias2tb[t]].index(cname) for cname in inter_cols[t]]
         lt = lt[:, idxs]
         all_tables.append(lt.tolist())
 
