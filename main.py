@@ -3,8 +3,8 @@ from src.deps import sql_parser as sp
 
 
 # directories set-up
-DB_DIR = "../req_files/"
-META_FILE = "../req_files/metadata.txt"
+DB_DIR = "./req_files/"
+META_FILE = "./req_files/metadata.txt"
 
 
 def main():
