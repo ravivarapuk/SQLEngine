@@ -1,13 +1,11 @@
 import os
-import sys
-import csv
 import numpy as np
 import re
 import pprint
 import itertools
 
-DB_DIR = "../files/"
-META_FILE = "../files/metadata.txt"
+
+# initialize aggregates, operators and Literal
 AGGREGATE = ["max", "min", "sum", "avg", "count", "distinct"]
 OPS = ["<=", ">=", "=", "<>", "<", ">"]
 LITERAL = "<literal>"
@@ -353,3 +351,7 @@ def _parse_query(q):
     }
 
 
+def _print_table(header, table):
+    print(",".join(map(str, header)))
+    for row in table:
+        print(",".join(map(str, row)))
