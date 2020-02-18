@@ -177,11 +177,12 @@ def _break_query(q):
         toks = q.lower().split()
         if toks[0] != "select":
             _error_if(True, "Only select is allowed")
+
         select_idx = [idx for idx, t in enumerate(toks) if t == "select"]
         from_idx = [idx for idx, t in enumerate(toks) if t == "from"]
         where_idx = [idx for idx, t in enumerate(toks) if t == "where"]
 
-        _error_if((len(select_idx) != 1) or (len(from_idx) != 1) or (len(where_idx) != 1), "invalid query")
+        _error_if((len(select_idx) != 1) or (len(from_idx) != 1) or (len(where_idx) > 1), "invalid query")
         select_idx, from_idx = select_idx[0], from_idx[0]
         where_idx = where_idx[0] if len(where_idx) == 1 else None
         _error_if(from_idx <= select_idx, "invalid query")
