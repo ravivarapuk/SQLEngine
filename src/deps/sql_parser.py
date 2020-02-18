@@ -330,7 +330,7 @@ def _parse_query(q):
     # get conditions
     conditions, cond_op = _parse_conditions(raw_condition, tables, alias2tb)
 
-    #decide all the needed columns for each table
+    # decide all the needed columns for each table
     inter_cols = {t: set() for t in tables}
     for tn, cn, _ in proj_cols:
         inter_cols[tn].add(cn)
