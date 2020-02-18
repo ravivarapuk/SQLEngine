@@ -7,7 +7,7 @@ META_FILE = "../req_files/metadata.txt"
 
 
 def main():
-    _init_metadata()
+    _init_metadata(META_FILE)
     if len(sys.argv) != 2:
         print("ERROR : invalid args")
         print("USAGE : python {} '<sql query>'".format(sys.argv[0]))

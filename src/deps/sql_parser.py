@@ -52,8 +52,8 @@ def _get_relate_op(cond):
     return op, l, r
 
 
-def _init_metadata():
-    with open(META_FILE, "r") as f:
+def _init_metadata(meta_file):
+    with open(meta_file, "r") as f:
         contents = f.readlines()
     contents = [t.strip() for t in contents if t.strip()]
 
